@@ -1,5 +1,15 @@
 package com.project.back_end.models;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+@Entity
+
 public class Appointment {
 
   // @Entity annotation:
@@ -12,6 +22,9 @@ public class Appointment {
 //      - Represents the unique identifier for each appointment.
 //      - The @Id annotation marks it as the primary key.
 //      - The @GeneratedValue(strategy = GenerationType.IDENTITY) annotation auto-generates the ID value when a new record is inserted into the database.
+@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
 // 2. 'doctor' field:
 //    - Type: private Doctor
@@ -19,20 +32,26 @@ public class Appointment {
 //      - Represents the doctor assigned to this appointment.
 //      - The @ManyToOne annotation defines the relationship, indicating many appointments can be linked to one doctor.
 //      - The @NotNull annotation ensures that an appointment must be associated with a doctor when created.
-
+@ManyToOne
+    @NotNull(message = "Doctor is required")
+private Doctor doctor;
 // 3. 'patient' field:
 //    - Type: private Patient
 //    - Description:
 //      - Represents the patient assigned to this appointment.
 //      - The @ManyToOne annotation defines the relationship, indicating many appointments can be linked to one patient.
 //      - The @NotNull annotation ensures that an appointment must be associated with a patient when created.
-
+@ManyToOne
+    @NotNull(message = "patient is required")
+    private  Patient patient;
 // 4. 'appointmentTime' field:
 //    - Type: private LocalDateTime
 //    - Description:
 //      - Represents the date and time when the appointment is scheduled to occur.
 //      - The @Future annotation ensures that the appointment time is always in the future when the appointment is created.
 //      - It uses LocalDateTime, which includes both the date and time for the appointment.
+    @Future(message = "Appointment must be in the future.")
+    private LocalDateTime appointmentTime;
 
 // 5. 'status' field:
 //    - Type: private int
@@ -41,6 +60,8 @@ public class Appointment {
 //        - 0 means the appointment is scheduled.
 //        - 1 means the appointment has been completed.
 //      - The @NotNull annotation ensures that the status field is not null.
+@NotNull
+    private int status;
 
 // 6. 'getEndTime' method:
 //    - Type: private LocalDateTime
@@ -48,25 +69,58 @@ public class Appointment {
 //      - This method is a transient field (not persisted in the database).
 //      - It calculates the end time of the appointment by adding one hour to the start time (appointmentTime).
 //      - It is used to get an estimated appointment end time for display purposes.
-
+private  LocalDateTime getEndTime;
 // 7. 'getAppointmentDate' method:
 //    - Type: private LocalDate
 //    - Description:
 //      - This method extracts only the date part from the appointmentTime field.
 //      - It returns a LocalDate object representing just the date (without the time) of the scheduled appointment.
-
+private LocalDate getAppointmentDate;
 // 8. 'getAppointmentTimeOnly' method:
 //    - Type: private LocalTime
 //    - Description:
 //      - This method extracts only the time part from the appointmentTime field.
 //      - It returns a LocalTime object representing just the time (without the date) of the scheduled appointment.
-
+private LocalTime getAppointmentTimeOnly;
 // 9. Constructor(s):
 //    - A no-argument constructor is implicitly provided by JPA for entity creation.
 //    - A parameterized constructor can be added as needed to initialize fields.
-
+public Appointment() {}
+    public Appointment(Doctor doctor, Patient patient, LocalDateTime appointmentTime, int status) {
+    this.doctor = doctor;
+    this.patient = patient;
+    this.appointmentTime = appointmentTime;
+    this.status = status;
+    }
 // 10. Getters and Setters:
 //    - Standard getter and setter methods are provided for accessing and modifying the fields: id, doctor, patient, appointmentTime, status, etc.
+public Doctor getDoctor(){
+    return doctor;
+}
 
+    public Patient getPatient() {
+        return patient;
+    }
+    public LocalDateTime getAppointmentTime() {
+    return appointmentTime;
+    }
+    public int getStatus() {
+    return status;
+    }
+    public void setDoctor(Doctor doctor) {
+    this.doctor = doctor;
+    }
+    public void setPatient(Patient patient) {
+    this.patient = patient;
+    }
+    public void setAppointmentTime(LocalDateTime appointmentTime) {
+    this.appointmentTime = appointmentTime;
+    }
+    public void setStatus(int status) {
+    this.status = status;
+    }
+    public Long getId() {
+    return  id;
+    }
 }
 
