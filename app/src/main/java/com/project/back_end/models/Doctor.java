@@ -46,7 +46,7 @@ public class Doctor {
 //      - The @Size(min = 3, max = 50) annotation ensures that the specialty name is between 3 and 50 characters long.
 @NotNull
     @Size(min = 3, max =  50)
-    private String speciality;
+    private String specialty;
 // 4. 'email' field:
 //    - Type: private String
 //    - Description:
@@ -92,11 +92,11 @@ public String getName() {
 public void setName(String name) {
     this.name = name;
 }
-public void setSpeciality(String speciality) {
-    this.speciality = speciality;
+public void setSpeciality(String specialty) {
+    this.specialty = specialty;
 }
-public String getSpeciality() {
-    return speciality;
+public String getSpecialty() {
+    return specialty;
 }
 public String getEmail() {
     return email;
