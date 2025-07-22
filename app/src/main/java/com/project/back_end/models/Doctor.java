@@ -92,12 +92,13 @@ public String getName() {
 public void setName(String name) {
     this.name = name;
 }
-public void setSpeciality(String specialty) {
+public void setSpecialty(String specialty) {
     this.specialty = specialty;
 }
 public String getSpecialty() {
     return specialty;
 }
+
 public String getEmail() {
     return email;
 }
@@ -126,6 +127,9 @@ public List<String> getAvailableTimes() {
 
     public Long getId() {
         return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
     }
 }
 

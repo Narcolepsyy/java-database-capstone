@@ -107,3 +107,55 @@ with search, filter, and modal functionality.
 
  -->
 
+<!-- adminDashboard.html -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="icon" th:href="@{/assets/images/logo/logo.png}" type="image/png">
+    <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}"/>
+    <script th:src="@{/js/render.js}" defer></script>
+    <script th:src="@{/js/util.js}" defer></script>
+    <script th:src="@{/js/components/header.js}" defer></script>
+    <script th:src="@{/js/components/footer.js}" defer></script>
+</head>
+<body>
+<div class="container">
+    <div class="wrapper">
+        <div id="header"></div>
+        <main class="main-content">
+            <input type="text" id="searchBar" placeholder="Search by doctor name">
+            <label for="timeFilter">Filter by time:</label>
+            <select id="timeFilter">
+                <option value="">Time</option>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+            </select>
+            <label for="specialtyFilter">Filter by Specialty:</label>
+            <select id="specialtyFilter">
+                <option value="">Specialty</option>
+                <option value="Cardiologist">Cardiologist</option>
+                <option value="Dentist">Dentist</option>
+                <option value="Neurologist">Neurologist</option>
+                <option value="Pediatrician">Pediatrician</option>
+            </select>
+            <div id="content" class="doctor-list"></div>
+        </main>
+        <div id="footer"></div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal hidden">
+    <span id="closeModal" class="close">&times;</span>
+    <div id="modal-body"></div>
+</div>
+
+<script type="module" th:src="@{/assets/js/services/adminDashboard.js}" defer></script>
+<script type="module" th:src="@{/assets/js/components/doctorCard.js}" defer></script>
+</body>
+</html>
+
