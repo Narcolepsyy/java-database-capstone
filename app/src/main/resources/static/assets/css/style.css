@@ -86,10 +86,11 @@
     color: #fff;
     padding: 40px 20px;
     border-top: 2px solid #f4f4f4;
-    
-  }
-  
-  .footer-container {
+    width: 100%;
+    margin-top: auto;  /* Push footer to the bottom */
+}
+
+.footer-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -379,4 +380,3 @@
   margin-right: 0.5rem;
   accent-color: #015c5db8; 
 }
-

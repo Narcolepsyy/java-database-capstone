@@ -56,3 +56,70 @@
     - Log the error to the console
     - Show a generic error message
 */
+
+import {openModal} from "../components/modals";
+import {API_BASE_URL} from "../config/config";
+
+const ADMIN_API = API_BASE_URL + '/admin';
+const DOCTOR_API = API_BASE_URL + '/doctor';
+
+window.onload = function() {
+    const adminBtn = document.getElementById("adminLogin");
+    if (adminBtn) {
+        adminBtn.addEventListener("click", () => {
+            openModal('adminLogin');
+        });
+    }
+};
+    // Implement admin login handler
+    window.adminLoginHandler = async function() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const admin = {username, password};
+
+        try {
+            const response = await fetch(ADMIN_API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(admin)
+            });
+            if (response.ok) {
+                const result = await response.json();
+                localStorage.setItem('token', result.token);
+                selectRole('admin');
+            } else {
+                alert("Invalid credentials. Please try again.");
+            }
+        } catch (error) {
+            console.error("Admin login failed:", error);
+            alert("An error occurred while logging in. Please try again later.");
+        }
+    };
+    window.doctorLoginHandler = async function() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const doctor = {email, password};
+
+        try {
+            const response = await fetch(DOCTOR_API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(doctor)
+            });
+            if (response.ok) {
+                const result = await response.json();
+                localStorage.setItem('token', result.token);
+                selectRole('doctor');
+            } else {
+                alert("Invalid credentials. Please try again.");
+            }
+        } catch (error) {
+            console.error("Doctor login failed:", error);
+            alert("An error occurred while logging in. Please try again later.");
+        }
+    };
+

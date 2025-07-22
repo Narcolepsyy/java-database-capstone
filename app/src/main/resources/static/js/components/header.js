@@ -1,5 +1,4 @@
 // Import modal opener (make sure modals.js exports openModal)
-import { openModal } from './modals.js';
 
 // 1. Main function to render the header
 export function renderHeader() {

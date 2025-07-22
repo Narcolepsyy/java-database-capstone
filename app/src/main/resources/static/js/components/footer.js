@@ -104,7 +104,6 @@
 */
 function renderFooter() {
     const footer = document.getElementById("footer");
-    if (!footer) return;
     footer.innerHTML = `
     <footer class="footer">
     <div class="footer-container">
@@ -120,7 +119,7 @@ function renderFooter() {
         <a href="#">Career</a>
         <a href="#">Press</a>
       </div>
-      <div class = footer-column">
+      <div class="footer-column">
       <h4>Support</h4>
         <a href="#">Account</a>
         <a href="#">Help Center</a>
