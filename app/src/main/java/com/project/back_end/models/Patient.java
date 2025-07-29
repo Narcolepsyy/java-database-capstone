@@ -96,6 +96,16 @@ public class Patient {
     public void setEmail(String email) {
         this.email = email;
     }
+    public String getPhone() {
+        return phone;
+    }
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 
     public String getAddress() {
         return address;

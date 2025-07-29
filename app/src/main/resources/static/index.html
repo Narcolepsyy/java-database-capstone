@@ -1,60 +1,38 @@
-<!-- index.html -->
-<!--
-This file allows users to select a role (Admin, Patient, Doctor)
-and triggers modal-based login functionality.
--->
+<!-- defineRole.html -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Select Role</title>
+  <meta charset="UTF-8">
+  <title>Select Role</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/images/logo/logo.png" />
+  <link rel="stylesheet" href="../assets/css/defineRole.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../js/util.js" defer></script>
+  <script src="../js/render.js" defer></script>
+  <script src="../js/components/header.js" defer></script>
+  <script src="../js/components/footer.js" defer></script>
+  
 
-    <!-- Favicon -->
-    <link rel="icon" href="assets/images/logo/logo.png" type="image/png">
-
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="assets/css/index.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-
-    <!-- Scripts -->
-    <script src="js/util.js" defer></script>
-    <script src="js/render.js" defer></script>
-    <script type="module" src="js/components/header.js" defer></script>
-    <script type="module" src="js/components/footer.js" defer></script>
 </head>
 <body>
-<div class="container">
+  <div class="container">
     <div class="wrapper">
-        <!-- Header -->
-        <div id="header"></div>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <h2>Select your role</h2>
-            <div class="role-buttons">
-                <button id="admin-btn" class="dashboard-btn">Admin</button>
-                <button id="doctor-btn" class="dashboard-btn">Doctor</button>
-                <button id="patient-btn" class="dashboard-btn">Patient</button>
-            </div>
-        </main>
-
-        <!-- Footer -->
-        <div id="footer"></div>
-    </div>
-</div>
-
-<!-- Modal -->
-<div id="modal" class="modal hidden">
+    <div id="header"></div>
+    <main class="main-content">
+    <h2>Select Your <span>Role</span> </h2>
+    <button id="adminLogin" class="adminBtn">Admin</button>
+    <button onclick="selectRole('patient')">Patient</button>
+    <button id="doctorLogin" class="adminBtn">Doctor</button>
+    </main>
+    <div id="footer" ></div>
+  </div>
+  <div id="modal" class="modal">
     <div class="modal-content">
-        <span id="modal-close" class="modal-close">&times;</span>
-        <div id="modal-body">
-            <!-- Dynamic content will be injected here -->
-        </div>
+        <span class="close" id="closeModal">&times;</span>
+        <div id="modal-body"></div>
     </div>
 </div>
-
-<!-- Page-specific logic -->
-<script type="module" src="js/services/index.js" defer></script>
+<script type="module" src="../js/services/defineRole.js" defer></script>
 </body>
 </html>

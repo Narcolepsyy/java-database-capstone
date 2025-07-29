@@ -122,5 +122,21 @@ public Doctor getDoctor(){
     public Long getId() {
     return  id;
     }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    // create getPatientId and getDoctorId for convenience
+    public Long getPatientId() {
+        return patient != null ? patient.getId() : null;
+    }
+    public Long getDoctorId() {
+        return doctor != null ? doctor.getId() : null;
+    }
+    public LocalDate getAppointmentDate() {
+        return appointmentTime != null ? appointmentTime.toLocalDate() : null;
+    }
+    public LocalTime getAppointmentTimeOnly() {
+        return appointmentTime != null ? appointmentTime.toLocalTime() : null;
+    }
 }
 

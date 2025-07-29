@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 @Controller
 public class DashboardController {
@@ -21,41 +22,45 @@ public class DashboardController {
 @Autowired
     Service service;
 
+
 // 3. Define the `adminDashboard` Method:
 //    - Handles HTTP GET requests to `/adminDashboard/{token}`.
 //    - Accepts an admin's token as a path variable.
 //    - Validates the token using the shared service for the `"admin"` role.
 //    - If the token is valid (i.e., no errors returned), forwards the user to the `"admin/adminDashboard"` view.
 //    - If invalid, redirects to the root URL, likely the login or home page.
-    @GetMapping("/adminDashboard/{token}")
-public String adminDashboard(@PathVariable String token) {
-        // Validate the token using the shared service for the "admin" role
-        if (service.validateToken(token, "admin")) {
-            // If valid, forward to the admin dashboard view
-            return "admin/adminDashboard";
-        } else {
-            // If invalid, redirect to the root URL
-            return "redirect:/";
-        }
+@GetMapping("/adminDashboard/{token}")
+public String adminDashboard(@PathVariable String token)
+{
+    Map<String, String> map=service.validateToken(token,"admin").getBody();
+    System.out.println("map"+map);
+    if(map.isEmpty())
+    {
+        return "admin/adminDashboard";
     }
+    return "redirect:http://localhost:8080";
+
+}
 
 
-// 4. Define the `doctorDashboard` Method:
+    // 4. Define the `doctorDashboard` Method:
 //    - Handles HTTP GET requests to `/doctorDashboard/{token}`.
 //    - Accepts a doctor's token as a path variable.
 //    - Validates the token using the shared service for the `"doctor"` role.
 //    - If the token is valid, forwards the user to the `"doctor/doctorDashboard"` view.
 //    - If the token is invalid, redirects to the root URL.
-@GetMapping("/doctorDashboard/{token}")
-public String doctorDashboard(@PathVariable String token) {
-        // Validate the token using the shared service for the "doctor" role
-        if (service.validateToken(token, "doctor")) {
-            // If valid, forward to the doctor dashboard view
+    @GetMapping("/doctorDashboard/{token}")
+    public String doctorDashboard(@PathVariable String token)
+    {
+        Map<String, String> map=service.validateToken(token,"doctor").getBody();
+        System.out.println("map"+map);
+        if(map.isEmpty())
+        {
             return "doctor/doctorDashboard";
-        } else {
-            // If invalid, redirect to the root URL
-            return "redirect:/";
         }
-    }
 
+        return "redirect:http://localhost:8080";
+
+    }
 }
+

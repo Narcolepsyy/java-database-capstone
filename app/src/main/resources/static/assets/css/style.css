@@ -1,5 +1,3 @@
-/* This is the style sheet for global change across the files. */
-
 /* style.css */
 .header {
     display: flex;
@@ -86,11 +84,10 @@
     color: #fff;
     padding: 40px 20px;
     border-top: 2px solid #f4f4f4;
-    width: 100%;
-    margin-top: auto;  /* Push footer to the bottom */
-}
-
-.footer-container {
+    
+  }
+  
+  .footer-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -167,7 +164,7 @@
     display: none;
     position: fixed;
     z-index: 999;
-    padding-top: 60px;
+    padding-top: 10px;
     left: 0;
     top: 0;
     width: 100%;
@@ -178,8 +175,9 @@
   .modal-content {
     background-color: white;
     margin: auto;
-    padding: 30px;
+    padding: 10px;
     border-radius: 10px;
+    overflow-y: auto;
     width: 400px;
     position: relative;
   }
@@ -379,4 +377,23 @@
 .checkbox-group input[type="checkbox"] {
   margin-right: 0.5rem;
   accent-color: #015c5db8; 
+}
+
+.scrollable-group {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.scrollable-group label {
+  display: block;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.scrollable-group input[type="checkbox"] {
+  margin-right: 8px;
 }
