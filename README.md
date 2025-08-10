@@ -1,5 +1,7 @@
 # Smart Clinic Management System
 # IBM Java・Database Capstone Project 報告書
+📽 [Click here to watch full demo on YouTube](https://www.youtube.com/watch?v=TfYPPA7sIvk)
+クリックすると YouTube 上で再生されます（チャプター付き）。
 
 ## プロジェクト目的
 
