@@ -94,3 +94,26 @@ export async function getPatientAppointments(id, token ,user) {
       return { appointments : [] }; 
     }
   }
+
+// For canceling an appointment
+export async function cancelAppointment(appointmentId, token) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}/${token}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return { success: true, message: data.message };
+    } else {
+      return { success: false, message: data.message || "Failed to cancel appointment" };
+    }
+  } catch (error) {
+    console.error("Error canceling appointment:", error);
+    return { success: false, message: "Network error occurred while canceling appointment" };
+  }
+}

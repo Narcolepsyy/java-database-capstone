@@ -68,4 +68,16 @@ public ResponseEntity<Map<String, Object>> getPrescription(@PathVariable Long ap
     }
     return prescriptionService.getPrescription(appointmentId);
 }
+
+// New endpoint for patients to view their prescriptions
+@GetMapping("/patient/{patientName}/{token}")
+public ResponseEntity<Map<String, Object>> getPatientPrescriptions(@PathVariable String patientName, @PathVariable String token) {
+    Map<String, Object> response = new HashMap<>();
+    ResponseEntity<Map<String, String>> tokenResponse = service.validateToken(token, "patient");
+    if (!tokenResponse.getBody().isEmpty()) {
+        response.putAll(tokenResponse.getBody());
+        return new ResponseEntity<>(response, tokenResponse.getStatusCode());
+    }
+    return prescriptionService.getPatientPrescriptions(patientName);
+}
 }

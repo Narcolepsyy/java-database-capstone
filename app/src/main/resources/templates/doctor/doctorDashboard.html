@@ -25,6 +25,11 @@
                 <input type="text" id="searchBar" class="searchBar" placeholder="Search Bar for custom output" />
                 <div class="filter-wrapper">
                   <button class="today-btn" id="todayButton">Today's Appointments</button>
+                  <select class="filter-select" id="appointmentFilter">
+                    <option value="today">Today Only</option>
+                    <option value="future">Future Appointments</option>
+                    <option value="all">All Appointments</option>
+                  </select>
                   <input type="date" id="datePicker" class="date-picker" />
               </div>
                 <table id="patientTable">

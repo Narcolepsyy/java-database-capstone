@@ -199,4 +199,61 @@ public class AppointmentService {
         appointmentRepository.updateStatus(1, appointmentId);
     }
 
+    // New method for doctors to filter appointments by condition
+    @Transactional
+    public Map<String, Object> getDoctorAppointmentsByFilter(String condition, String patientName, String token) {
+        Map<String, Object> map = new HashMap<>();
+
+        try {
+            String extractedEmail = tokenService.extractEmail(token);
+            Long doctorId = doctorRepository.findByEmail(extractedEmail).getId();
+
+            List<Appointment> appointments;
+
+            if (condition == null || condition.equals("null")) {
+                // Get all appointments for this doctor
+                if (patientName == null || patientName.equals("null")) {
+                    appointments = appointmentRepository.findByDoctorId(doctorId);
+                } else {
+                    appointments = appointmentRepository.findByDoctorIdAndPatient_NameContainingIgnoreCase(doctorId, patientName);
+                }
+            } else if (condition.equals("future")) {
+                // Get future appointments only
+                LocalDateTime now = LocalDateTime.now();
+                if (patientName == null || patientName.equals("null")) {
+                    appointments = appointmentRepository.findByDoctorIdAndAppointmentTimeAfter(doctorId, now);
+                } else {
+                    appointments = appointmentRepository.findByDoctorIdAndPatient_NameContainingIgnoreCaseAndAppointmentTimeAfter(doctorId, patientName, now);
+                }
+            } else {
+                map.put("error", "Invalid filter condition");
+                map.put("appointments", List.of());
+                return map;
+            }
+
+            List<AppointmentDTO> appointmentDTOs = appointments.stream()
+                    .map(app -> new AppointmentDTO(
+                            app.getId(),
+                            app.getDoctor().getId(),
+                            app.getDoctor().getName(),
+                            app.getPatient().getId(),
+                            app.getPatient().getName(),
+                            app.getPatient().getEmail(),
+                            app.getPatient().getPhone(),
+                            app.getPatient().getAddress(),
+                            app.getAppointmentTime(),
+                            app.getStatus()))
+                    .collect(Collectors.toList());
+
+            map.put("appointments", appointmentDTOs);
+            return map;
+
+        } catch (Exception e) {
+            System.err.println("Error filtering doctor appointments: " + e.getMessage());
+            map.put("error", "Internal server error");
+            map.put("appointments", List.of());
+            return map;
+        }
+    }
+
 }

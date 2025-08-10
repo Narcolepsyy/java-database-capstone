@@ -124,4 +124,25 @@ public ResponseEntity<Map<String, String>> cancelAppointment(
     }
     return appointmentService.cancelAppointment(id, token);
 }
+
+// 7. Define the `getDoctorAppointmentsByFilter` Method:
+//    - Handles HTTP GET requests for doctors to filter their appointments by condition (future/all).
+//    - Accepts filter condition, patient name, and token as path variables.
+//    - Validates the token for `"doctor"` role to ensure only doctors can access this endpoint.
+//    - Calls `AppointmentService` to handle the filtering logic and returns the filtered appointments.
+@GetMapping("/filter/{condition}/{patientName}/{token}")
+public ResponseEntity<Map<String, Object>> getDoctorAppointmentsByFilter(
+        @PathVariable String condition,
+        @PathVariable String patientName,
+        @PathVariable String token) {
+    Map<String, Object> response = new HashMap<>();
+    ResponseEntity<Map<String, String>> tokenResponse = service.validateToken(token, "doctor");
+    if (!tokenResponse.getBody().isEmpty()) {
+        response.putAll(tokenResponse.getBody());
+        return new ResponseEntity<>(response, tokenResponse.getStatusCode());
+    }
+
+    Map<String, Object> result = appointmentService.getDoctorAppointmentsByFilter(condition, patientName, token);
+    return ResponseEntity.status(HttpStatus.OK).body(result);
+}
 }

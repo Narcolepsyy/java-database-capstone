@@ -12,6 +12,29 @@ export async function getAllAppointments(date, patientName, token) {
   return await response.json(); 
 }
 
+//This is for the doctor to get appointments by filter condition (future, all, etc.)
+export async function getAppointmentsByFilter(condition, patientName, token) {
+  try {
+    const response = await fetch(`${APPOINTMENT_API}/filter/${condition}/${patientName}/${token}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.error("Failed to fetch appointments:", response.statusText);
+      return { appointments: [] };
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return { appointments: [] };
+  }
+}
+
 export async function bookAppointment(appointment, token) {
   try {
     const response = await fetch(`${APPOINTMENT_API}/${token}`, {

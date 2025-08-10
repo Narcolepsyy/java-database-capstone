@@ -83,14 +83,34 @@ List<Appointment> filterByDoctorNameAndPatientIdAndStatus(String doctorName, Lon
 @Query("UPDATE Appointment a SET a.status = ?1 WHERE a.id = ?2")
 void updateStatus(int status, long id);
 
+// Additional methods needed for doctor appointment filtering
 
+//    - **findByDoctorId**:
+//      - This method retrieves all appointments for a specific doctor.
+//      - Return type: List<Appointment>
+//      - Parameters: Long doctorId
+@Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor d LEFT JOIN FETCH a.patient p WHERE a.doctor.id = ?1")
+List<Appointment> findByDoctorId(Long doctorId);
 
-// 3. @Modifying and @Transactional annotations:
-//    - The @Modifying annotation is used to indicate that the method performs a modification operation (like DELETE or UPDATE).
-//    - The @Transactional annotation ensures that the modification is done within a transaction, meaning that if any exception occurs, the changes will be rolled back.
+//    - **findByDoctorIdAndPatient_NameContainingIgnoreCase**:
+//      - This method retrieves appointments for a specific doctor and patient name (ignoring case).
+//      - Return type: List<Appointment>
+//      - Parameters: Long doctorId, String patientName
+@Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor d LEFT JOIN FETCH a.patient p WHERE a.doctor.id = ?1 AND LOWER(p.name) LIKE LOWER(CONCAT('%', ?2, '%'))")
+List<Appointment> findByDoctorIdAndPatient_NameContainingIgnoreCase(Long doctorId, String patientName);
 
-// 4. @Repository annotation:
-//    - The @Repository annotation marks this interface as a Spring Data JPA repository.
-//    - Spring Data JPA automatically implements this repository, providing the necessary CRUD functionality and custom queries defined in the interface.
+//    - **findByDoctorIdAndAppointmentTimeAfter**:
+//      - This method retrieves future appointments for a specific doctor.
+//      - Return type: List<Appointment>
+//      - Parameters: Long doctorId, LocalDateTime dateTime
+@Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor d LEFT JOIN FETCH a.patient p WHERE a.doctor.id = ?1 AND a.appointmentTime > ?2")
+List<Appointment> findByDoctorIdAndAppointmentTimeAfter(Long doctorId, LocalDateTime dateTime);
 
-}
+//    - **findByDoctorIdAndPatient_NameContainingIgnoreCaseAndAppointmentTimeAfter**:
+//      - This method retrieves future appointments for a specific doctor and patient name (ignoring case).
+//      - Return type: List<Appointment>
+//      - Parameters: Long doctorId, String patientName, LocalDateTime dateTime
+@Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor d LEFT JOIN FETCH a.patient p WHERE a.doctor.id = ?1 AND LOWER(p.name) LIKE LOWER(CONCAT('%', ?2, '%')) AND a.appointmentTime > ?3")
+List<Appointment> findByDoctorIdAndPatient_NameContainingIgnoreCaseAndAppointmentTimeAfter(Long doctorId, String patientName, LocalDateTime dateTime);}
+
+// ...existing code...

@@ -23,5 +23,7 @@ public interface PrescriptionRepository extends MongoRepository<Prescription, St
 
     List<Prescription> findByAppointmentId(Long appointmentId);
 
-}
+    // Method to find prescriptions by patient name
+    List<Prescription> findByPatientName(String patientName);
 
+}

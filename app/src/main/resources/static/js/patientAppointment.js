@@ -1,4 +1,4 @@
-import { getPatientAppointments, getPatientData, filterAppointments } from "./services/patientServices.js";
+import { getPatientAppointments, getPatientData, filterAppointments, cancelAppointment } from "./services/patientServices.js";
 
 const tableBody = document.getElementById("patientTableBody");
 const token = localStorage.getItem("token");
@@ -43,21 +43,96 @@ function renderAppointments(appointments) {
 
   appointments.forEach(appointment => {
     const tr = document.createElement("tr");
+
+    // Check if appointment is in the future
+    const appointmentDateTime = new Date(`${appointment.appointmentDate}T${appointment.appointmentTimeOnly}`);
+    const now = new Date();
+    const isFuture = appointmentDateTime > now;
+
+    // Create action buttons based on appointment status and timing
+    let actionButtons = "";
+    if (appointment.status == 0 && isFuture) {
+      // Future appointments can be edited and cancelled
+      actionButtons = `
+        <div class="action-buttons">
+          <img src="../assets/images/edit/edit.png" alt="Edit" class="edit-btn" data-id="${appointment.id}" title="Edit Appointment">
+          <button class="cancel-btn" data-id="${appointment.id}" title="Cancel Appointment">Cancel</button>
+        </div>
+      `;
+    } else if (appointment.status == 0) {
+      // Past appointments can only be viewed
+      actionButtons = `<span class="past-appointment">Past</span>`;
+    } else {
+      actionButtons = "-";
+    }
+
     tr.innerHTML = `
       <td>${appointment.patientName || "You"}</td>
       <td>${appointment.doctorName}</td>
       <td>${appointment.appointmentDate}</td>
       <td>${appointment.appointmentTimeOnly}</td>
-      <td>${appointment.status == 0 ? `<img src="../assets/images/edit/edit.png" alt="Edit" class="prescription-btn" data-id="${appointment.patientId}">` : "-"}</td>
+      <td>${actionButtons}</td>
     `;
 
-    if (appointment.status == 0) {
-      const actionBtn = tr.querySelector(".prescription-btn");
-      actionBtn?.addEventListener("click", () => redirectToUpdatePage(appointment));
+    // Add event listeners for buttons
+    if (appointment.status == 0 && isFuture) {
+      const editBtn = tr.querySelector(".edit-btn");
+      const cancelBtn = tr.querySelector(".cancel-btn");
+
+      editBtn?.addEventListener("click", () => redirectToUpdatePage(appointment));
+      cancelBtn?.addEventListener("click", () => handleCancelAppointment(appointment.id));
     }
 
     tableBody.appendChild(tr);
   });
+}
+
+// Function to handle appointment cancellation
+async function handleCancelAppointment(appointmentId) {
+  // Show confirmation dialog
+  const confirmed = confirm("Are you sure you want to cancel this appointment? This action cannot be undone.");
+
+  if (!confirmed) return;
+
+  try {
+    // Show loading state
+    const cancelBtn = document.querySelector(`[data-id="${appointmentId}"].cancel-btn`);
+    if (cancelBtn) {
+      cancelBtn.disabled = true;
+      cancelBtn.textContent = "Canceling...";
+    }
+
+    // Call the cancel API
+    const result = await cancelAppointment(appointmentId, token);
+
+    if (result.success) {
+      alert("✅ " + result.message);
+
+      // Refresh the appointments list
+      const appointmentData = await getPatientAppointments(patientId, token, "patient") || [];
+      allAppointments = appointmentData.filter(app => app.patientId === patientId);
+      renderAppointments(allAppointments);
+
+    } else {
+      alert("❌ " + result.message);
+
+      // Re-enable the button if cancellation failed
+      if (cancelBtn) {
+        cancelBtn.disabled = false;
+        cancelBtn.textContent = "Cancel";
+      }
+    }
+  } catch (error) {
+    console.error("Error canceling appointment:", error);
+    alert("❌ An error occurred while canceling the appointment. Please try again.");
+
+    // Re-enable the button
+    const cancelBtn = document.querySelector(`[data-id="${appointmentId}"].cancel-btn`);
+    if (cancelBtn) {
+      cancelBtn.disabled = false;
+      cancelBtn.textContent = "Cancel";
+    }
+  }
 }
 
 function redirectToUpdatePage(appointment) {
@@ -101,5 +176,3 @@ async function handleFilterChange() {
     alert("❌ An error occurred while filtering appointments.");
   }
 }
-
-  

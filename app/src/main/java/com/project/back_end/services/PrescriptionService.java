@@ -59,4 +59,23 @@ public class PrescriptionService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(map); 
         }
     }
+
+    // New method for patients to get their prescriptions by patient name
+    public ResponseEntity<Map<String, Object>> getPatientPrescriptions(String patientName)
+    {
+        Map<String, Object> map = new HashMap<>();
+
+        try {
+            List<Prescription> prescriptions = prescriptionRepository.findByPatientName(patientName);
+            map.put("prescriptions", prescriptions);
+            map.put("count", prescriptions.size());
+            return ResponseEntity.status(HttpStatus.OK).body(map);
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error: " + e);
+            map.put("error", "Internal Server Error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(map);
+        }
+    }
 }

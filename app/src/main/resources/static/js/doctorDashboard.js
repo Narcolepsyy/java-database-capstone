@@ -1,10 +1,11 @@
-import { getAllAppointments } from "./services/appointmentRecordService.js";
+import { getAllAppointments, getAppointmentsByFilter } from "./services/appointmentRecordService.js";
 import { createPatientRow } from "./components/patientRows.js";
 
 const tableBody = document.getElementById("patientTableBody");
 let selectedDate = new Date().toISOString().split('T')[0];
 let token = localStorage.getItem("token");
 let patientName = null;
+let currentFilter = "today"; // Track current filter mode
 
 document.getElementById("searchBar").addEventListener("input", (e) => {
   const value = e.target.value.trim();
@@ -15,30 +16,59 @@ document.getElementById("searchBar").addEventListener("input", (e) => {
 // Event Listener: Today's Appointments Button
 document.getElementById("todayButton").addEventListener("click", () => {
   selectedDate = new Date().toISOString().split('T')[0];
-  document.getElementById("datePicker").value = selectedDate; // Update date picker too
+  currentFilter = "today";
+  document.getElementById("datePicker").value = selectedDate;
+  document.getElementById("appointmentFilter").value = "today";
+  loadAppointments();
+});
+
+// Event Listener: Appointment Filter Dropdown
+document.getElementById("appointmentFilter").addEventListener("change", (e) => {
+  currentFilter = e.target.value;
+
+  if (currentFilter === "today") {
+    selectedDate = new Date().toISOString().split('T')[0];
+    document.getElementById("datePicker").value = selectedDate;
+  }
+
   loadAppointments();
 });
 
 // Event Listener: Date Picker
 document.getElementById("datePicker").addEventListener("change", (e) => {
   selectedDate = e.target.value;
+  currentFilter = "today"; // When date is selected, switch to specific date mode
+  document.getElementById("appointmentFilter").value = "today";
   loadAppointments();
 });
 
 async function loadAppointments() {
-  
-
   try {
-    const response = await getAllAppointments(selectedDate, patientName, token);
-    const appointments = response.appointments || [];
-    
+    let response;
+    let appointments = [];
+
+    if (currentFilter === "future" || currentFilter === "all") {
+      // Use filter-based API for future and all appointments
+      const filterCondition = currentFilter === "all" ? null : currentFilter;
+      response = await getAppointmentsByFilter(filterCondition, patientName, token);
+      appointments = response.appointments || [];
+    } else {
+      // Use date-specific API for today/specific date
+      response = await getAllAppointments(selectedDate, patientName, token);
+      appointments = response.appointments || [];
+    }
+
     tableBody.innerHTML = "";
 
     if (appointments.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="5">No Appointments found for today.</td></tr>`;
+      const filterText = currentFilter === "future" ? "future appointments" :
+                        currentFilter === "all" ? "appointments" :
+                        "appointments for the selected date";
+      tableBody.innerHTML = `<tr><td colspan="5">No ${filterText} found.</td></tr>`;
       return;
     }
-    console.log(appointments)
+
+    console.log(appointments);
     appointments.forEach(appointment => {
       const patient = {
         id: appointment.patientId,
@@ -46,8 +76,8 @@ async function loadAppointments() {
         phone: appointment.patientPhone,
         email: appointment.patientEmail,
       };
-      console.log(appointment.doctorId)
-      const row = createPatientRow(patient,appointment.id,appointment.doctorId);
+      console.log(appointment.doctorId);
+      const row = createPatientRow(patient, appointment.id, appointment.doctorId);
       tableBody.appendChild(row);
     });
   } catch (error) {

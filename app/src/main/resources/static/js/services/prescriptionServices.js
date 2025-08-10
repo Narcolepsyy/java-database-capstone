@@ -43,3 +43,27 @@ export async function getPrescription(appointmentId, token) {
     throw error;
   }
 }
+
+// New function for patients to get their prescriptions
+export async function getPatientPrescriptions(patientName, token) {
+  try {
+    const response = await fetch(`${PRESCRITION_API}/patient/${patientName}/${token}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Failed to fetch patient prescriptions:", errorData);
+      throw new Error(errorData.message || "Unable to fetch prescriptions");
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error :: getPatientPrescriptions ::", error);
+    throw error;
+  }
+}

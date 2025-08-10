@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/logo/logo.png" />
+  <title>My Prescriptions</title>
+  <link rel="stylesheet" href="../assets/css/adminDashboard.css">
+  <link rel="stylesheet" href="../assets/css/doctorDashboard.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../js/render.js" defer></script>
+  <script src="../js/util.js" defer></script>
+  <script src="../js/components/header.js" defer></script>
+  <script src="../js/components/footer.js" defer></script>
+  <script type="module" src="../js/patientPrescriptions.js" defer></script>
+</head>
+
+<body onload="renderContent()">
+  <div class="container">
+    <div class="wrapper">
+      <div id="header"></div>
+      <div class="main-content">
+        <h2>My <span>Prescriptions</span></h2>
+        <input type="text" id="searchBar" class="searchBar" placeholder="Search prescriptions by medication name..." />
+
+        <div class="prescriptions-container" id="prescriptionsContainer">
+          <!-- Prescription cards will be inserted here dynamically -->
+        </div>
+
+        <div class="no-prescriptions" id="noPrescriptions" style="display: none;">
+          <p>No prescriptions found.</p>
+        </div>
+      </div>
+      <div id="footer"></div>
+    </div>
+  </div>
+</body>
+</html>
