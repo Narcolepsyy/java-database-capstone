@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/logo/logo.png" />
+  <title>Doctor Schedule Calendar</title>
+  <link rel="stylesheet" href="../assets/css/adminDashboard.css">
+  <link rel="stylesheet" href="../assets/css/doctorDashboard.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/calendar.css">
+  <script src="../js/render.js" defer></script>
+  <script src="../js/util.js" defer></script>
+  <script src="../js/components/header.js" defer></script>
+  <script src="../js/components/footer.js" defer></script>
+  <script type="module" src="../js/doctorCalendar.js" defer></script>
+</head>
+<body onload="renderContent()">
+  <div class="container">
+    <div class="wrapper">
+      <div id="header"></div>
+      <main class="main-content">
+        <h2>Your <span>Appointment Calendar</span></h2>
+
+        <div class="calendar-controls">
+          <div class="calendar-nav">
+            <button id="prevMonth" class="btn-nav">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <h3 id="currentMonthYear">August 2025</h3>
+            <button id="nextMonth" class="btn-nav">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="view-selector">
+            <button id="viewDay" class="view-btn">Day</button>
+            <button id="viewWeek" class="view-btn">Week</button>
+            <button id="viewMonth" class="view-btn active">Month</button>
+          </div>
+        </div>
+
+        <div id="calendarContainer" class="calendar-container">
+          <div class="calendar-header">
+            <div>Sunday</div>
+            <div>Monday</div>
+            <div>Tuesday</div>
+            <div>Wednesday</div>
+            <div>Thursday</div>
+            <div>Friday</div>
+            <div>Saturday</div>
+          </div>
+          <div id="calendarGrid" class="calendar-grid">
+            <!-- Calendar days will be generated here -->
+          </div>
+        </div>
+
+        <!-- Appointment Details Modal -->
+        <div id="appointmentModal" class="modal">
+          <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h3>Appointment Details</h3>
+            <div id="appointmentDetails"></div>
+          </div>
+        </div>
+
+        <!-- Add Availability Modal -->
+        <div id="availabilityModal" class="modal">
+          <div class="modal-content">
+            <span class="close" id="closeAvailabilityModal">&times;</span>
+            <h3>Set Availability</h3>
+            <form id="availabilityForm">
+              <div class="form-group">
+                <label for="availabilityDate">Date:</label>
+                <input type="date" id="availabilityDate" required>
+              </div>
+              <div class="form-group">
+                <label>Available Times:</label>
+                <div class="time-slots">
+                  <div class="time-slot">
+                    <input type="checkbox" id="time-8am" value="08:00">
+                    <label for="time-8am">8:00 AM</label>
+                  </div>
+                  <div class="time-slot">
+                    <input type="checkbox" id="time-9am" value="09:00">
+                    <label for="time-9am">9:00 AM</label>
+                  </div>
+                  <div class="time-slot">
+                    <input type="checkbox" id="time-10am" value="10:00">
+                    <label for="time-10am">10:00 AM</label>
+                  </div>
+                  <div class="time-slot">
+                    <input type="checkbox" id="time-11am" value="11:00">
+                    <label for="time-11am">11:00 AM</label>
+                  </div>
+                  <div class="time-slot">
+                    <input type="checkbox" id="time-1pm" value="13:00">
+                    <label for="time-1pm">1:00 PM</label>
+                  </div>
+                  <div class="time-slot">
+                    <input type="checkbox" id="time-2pm" value="14:00">
+                    <label for="time-2pm">2:00 PM</label>
+                  </div>
+                  <div class="time-slot">
+                    <input type="checkbox" id="time-3pm" value="15:00">
+                    <label for="time-3pm">3:00 PM</label>
+                  </div>
+                  <div class="time-slot">
+                    <input type="checkbox" id="time-4pm" value="16:00">
+                    <label for="time-4pm">4:00 PM</label>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="submit-btn">Save Availability</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Add Quick Button to Add Availability -->
+        <div class="add-availability-container">
+          <button id="addAvailability" class="add-availability-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Set Availability
+          </button>
+        </div>
+      </main>
+      <div id="footer"></div>
+    </div>
+  </div>
+</body>
+</html>

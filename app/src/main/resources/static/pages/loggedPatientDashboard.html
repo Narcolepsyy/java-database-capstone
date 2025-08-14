@@ -45,6 +45,51 @@
                     </select>
                 </div>
                 <div id="content"></div>
+
+                <!-- Floating Chat Button -->
+                <div class="chat-button" id="chatButton">
+                    <div class="chat-button-icon">💬</div>
+                    <div class="chat-notification" id="chatNotification">1</div>
+                </div>
+
+                <!-- Chatbot Popup -->
+                <div class="chatbot-popup" id="chatbotPopup">
+                    <div class="chatbot-header">
+                        <div class="chatbot-title">
+                            <div class="chatbot-avatar">👩‍⚕️</div>
+                            <div class="chatbot-info">
+                                <h3>Virtual Receptionist</h3>
+                                <span class="status">Online</span>
+                            </div>
+                        </div>
+                        <div class="chatbot-controls">
+                            <button id="minimizeChatbot" class="control-btn minimize-btn" title="Minimize">—</button>
+                            <button id="closeChatbot" class="control-btn close-btn" title="Close">×</button>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="bot-message">
+                            <div class="message-content">
+                                Hello! 👋 I'm your virtual medical receptionist. I'm here to help you find the right doctor for your health concerns. How can I assist you today?
+                            </div>
+                            <div class="message-time">Just now</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <textarea id="chatInput" placeholder="Type your message or describe your symptoms..." rows="2"></textarea>
+                            <button id="sendMessage" class="send-btn">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="2">
+                                    <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button id="clearChat" class="action-btn clear-btn">Clear Chat</button>
+                    </div>
+                </div>
             </main>
             <div id="footer"></div>
         </div>

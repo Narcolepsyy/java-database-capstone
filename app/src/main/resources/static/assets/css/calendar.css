@@ -1,0 +1,332 @@
+/* Calendar Styles */
+.calendar-container {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-nav {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-nav:hover {
+  background-color: #f0f0f0;
+}
+
+#currentMonthYear {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #244557;
+  margin: 0;
+  min-width: 180px;
+  text-align: center;
+}
+
+.view-selector {
+  display: flex;
+  gap: 5px;
+  background-color: #f0f0f0;
+  border-radius: 25px;
+  padding: 4px;
+}
+
+.view-btn {
+  border: none;
+  background: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-btn.active {
+  background-color: #244557;
+  color: white;
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.calendar-header div {
+  padding: 10px;
+  text-align: center;
+  font-weight: 600;
+  color: #495057;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(100px, auto);
+}
+
+.calendar-day {
+  border: 1px solid #e9ecef;
+  padding: 8px;
+  min-height: 100px;
+  position: relative;
+}
+
+.calendar-day:hover {
+  background-color: #f8f9fa;
+}
+
+.day-number {
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.other-month .day-number {
+  color: #adb5bd;
+}
+
+.today {
+  background-color: #e9f5ff;
+}
+
+.today .day-number {
+  background-color: #244557;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appointment {
+  background-color: #244557;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: transform 0.2s;
+}
+
+.appointment:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.available-slot {
+  background-color: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.available-slot:hover {
+  opacity: 0.9;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 60%;
+  max-width: 500px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #999;
+}
+
+/* Add Availability Form */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input[type="date"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.time-slot {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.time-slot label {
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.submit-btn {
+  background-color: #244557;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #1c3745;
+}
+
+/* Add Availability Button */
+.add-availability-container {
+  text-align: right;
+  margin-top: 20px;
+}
+
+.add-availability-btn {
+  background-color: #244557;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  transition: background-color 0.2s;
+}
+
+.add-availability-btn:hover {
+  background-color: #1c3745;
+}
+
+/* Calendar Week View */
+.week-view .calendar-grid {
+  grid-template-columns: auto repeat(7, 1fr);
+}
+
+.week-view .calendar-header {
+  grid-template-columns: auto repeat(7, 1fr);
+}
+
+.time-column {
+  border-right: 1px solid #e9ecef;
+  text-align: right;
+  padding-right: 10px;
+  color: #666;
+  font-size: 12px;
+}
+
+.time-slot-container {
+  border: 1px solid #e9ecef;
+  height: 60px;
+  position: relative;
+}
+
+/* Calendar Day View */
+.day-view .calendar-grid {
+  grid-template-columns: auto 1fr;
+}
+
+.day-view .calendar-header {
+  grid-template-columns: auto 1fr;
+}
+
+.day-view .day-column {
+  padding-left: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .time-slots {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modal-content {
+    width: 90%;
+  }
+
+  .calendar-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .calendar-header div {
+    font-size: 12px;
+    padding: 5px;
+  }
+}
