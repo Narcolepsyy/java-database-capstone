@@ -67,3 +67,18 @@ export async function getPatientPrescriptions(patientName, token) {
     throw error;
   }
 }
+
+// New: delete a prescription (patient only)
+export async function deletePrescription(id, token) {
+  try {
+    const response = await fetch(`${PRESCRITION_API}/${id}/${token}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const result = await response.json();
+    return { success: response.ok, message: result.message || 'Done' };
+  } catch (error) {
+    console.error('Error :: deletePrescription ::', error);
+    return { success: false, message: 'Server error' };
+  }
+}

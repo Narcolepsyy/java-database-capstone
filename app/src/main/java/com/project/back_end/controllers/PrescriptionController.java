@@ -4,7 +4,6 @@ import com.project.back_end.models.Prescription;
 import com.project.back_end.services.AppointmentService;
 import com.project.back_end.services.PrescriptionService;
 import com.project.back_end.services.Service;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,5 +78,15 @@ public ResponseEntity<Map<String, Object>> getPatientPrescriptions(@PathVariable
         return new ResponseEntity<>(response, tokenResponse.getStatusCode());
     }
     return prescriptionService.getPatientPrescriptions(patientName);
+}
+
+// New: delete endpoint for patients
+@DeleteMapping("/{id}/{token}")
+public ResponseEntity<Map<String, String>> deletePrescription(@PathVariable String id, @PathVariable String token) {
+    ResponseEntity<Map<String, String>> tokenResponse = service.validateToken(token, "patient");
+    if (!tokenResponse.getBody().isEmpty()) {
+        return tokenResponse;
+    }
+    return prescriptionService.deletePrescription(id, token);
 }
 }

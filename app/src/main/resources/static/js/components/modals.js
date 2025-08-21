@@ -77,7 +77,9 @@ export function openModal(type) {
   }
 
   document.getElementById('modal-body').innerHTML = modalContent;
-  document.getElementById('modal').style.display = 'block';
+  // Use flex to center the modal content
+  const modalEl = document.getElementById('modal');
+  modalEl.style.display = 'flex';
 
   document.getElementById('closeModal').onclick = () => {
     document.getElementById('modal').style.display = 'none';

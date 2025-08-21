@@ -1,8 +1,7 @@
 // Import required services
 import { getDoctorAppointments, updateDoctorAvailability } from './services/doctorServices.js';
 
-// Current doctor ID (will be retrieved from localStorage)
-let currentDoctorId = null;
+// Current view/date
 let currentDate = new Date();
 let currentView = 'month';
 let doctorAppointments = [];
@@ -10,6 +9,7 @@ let doctorAvailability = [];
 
 // DOM elements
 const calendarGrid = document.getElementById('calendarGrid');
+const calendarContainer = document.getElementById('calendarContainer');
 const currentMonthYearElement = document.getElementById('currentMonthYear');
 const prevMonthButton = document.getElementById('prevMonth');
 const nextMonthButton = document.getElementById('nextMonth');
@@ -27,23 +27,14 @@ const availabilityDateInput = document.getElementById('availabilityDate');
 
 // Initialize the calendar when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  // Get current doctor ID from localStorage
   const token = localStorage.getItem('token');
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      currentDoctorId = payload.id;
-
-      // Fetch appointments and availability
-      fetchDoctorData();
-    } catch (error) {
-      console.error('Failed to parse token:', error);
-      alert('Authentication error. Please login again.');
-    }
-  } else {
+  if (!token) {
     alert('Please login to view your calendar.');
-    window.location.href = '/pages/login.html';
+    return;
   }
+
+  // Fetch appointments and availability
+  fetchDoctorData(token);
 
   // Set up event listeners
   setupEventListeners();
@@ -56,13 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEventListeners() {
   // Month navigation
   prevMonthButton.addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    renderCalendar();
+    navigatePrevious();
   });
 
   nextMonthButton.addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    renderCalendar();
+    navigateNext();
   });
 
   // View type buttons
@@ -92,7 +81,7 @@ function setupEventListeners() {
     const today = new Date();
     availabilityDateInput.min = today.toISOString().split('T')[0];
     availabilityDateInput.value = today.toISOString().split('T')[0];
-    availabilityModal.style.display = 'block';
+    availabilityModal.style.display = 'flex';
   });
 
   // Availability form submission
@@ -110,6 +99,45 @@ function setupEventListeners() {
       availabilityModal.style.display = 'none';
     }
   });
+
+  // Close modals on Escape
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      appointmentModal.style.display = 'none';
+      availabilityModal.style.display = 'none';
+    }
+  });
+}
+
+// Navigation functions based on current view
+function navigateNext() {
+  switch (currentView) {
+    case 'day':
+      currentDate.setDate(currentDate.getDate() + 1);
+      break;
+    case 'week':
+      currentDate.setDate(currentDate.getDate() + 7);
+      break;
+    case 'month':
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      break;
+  }
+  renderCalendar();
+}
+
+function navigatePrevious() {
+  switch (currentView) {
+    case 'day':
+      currentDate.setDate(currentDate.getDate() - 1);
+      break;
+    case 'week':
+      currentDate.setDate(currentDate.getDate() - 7);
+      break;
+    case 'month':
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      break;
+  }
+  renderCalendar();
 }
 
 // Set active view and render calendar
@@ -133,15 +161,13 @@ function setActiveView(view) {
 }
 
 // Fetch doctor appointments and availability
-async function fetchDoctorData() {
+async function fetchDoctorData(token) {
   try {
-    // Get doctor appointments
-    const response = await getDoctorAppointments(currentDoctorId);
+    // Get doctor appointments using token (doctor inferred on backend)
+    const response = await getDoctorAppointments({ condition: null, patientName: null, token });
     doctorAppointments = response.appointments || [];
 
-    // Get doctor availability
-    // For now, we'll create some sample availability data
-    // In a real app, this would be fetched from the server
+    // Generate sample availability for UI
     doctorAvailability = generateSampleAvailability();
 
     renderCalendar();
@@ -204,11 +230,17 @@ function formatDate(date) {
 
 // Render the calendar based on the current view
 function renderCalendar() {
+  // Update container class for different view styles
+  calendarContainer.className = 'calendar-container';
+
   if (currentView === 'month') {
+    calendarContainer.classList.add('month-view');
     renderMonthView();
   } else if (currentView === 'week') {
+    calendarContainer.classList.add('week-view');
     renderWeekView();
   } else {
+    calendarContainer.classList.add('day-view');
     renderDayView();
   }
 
@@ -218,7 +250,30 @@ function renderCalendar() {
 
 // Update the month/year display
 function updateCurrentMonthYearDisplay() {
-  const options = { month: 'long', year: 'numeric' };
+  let options = {};
+
+  if (currentView === 'day') {
+    options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+  } else if (currentView === 'week') {
+    // For week view, show the date range
+    const weekStart = new Date(currentDate);
+    weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+
+    const startMonth = weekStart.toLocaleDateString(undefined, { month: 'short' });
+    const endMonth = weekEnd.toLocaleDateString(undefined, { month: 'short' });
+
+    if (startMonth === endMonth) {
+      currentMonthYearElement.textContent = `${startMonth} ${weekStart.getDate()} - ${weekEnd.getDate()}, ${weekStart.getFullYear()}`;
+    } else {
+      currentMonthYearElement.textContent = `${startMonth} ${weekStart.getDate()} - ${endMonth} ${weekEnd.getDate()}, ${weekStart.getFullYear()}`;
+    }
+    return;
+  } else {
+    options = { month: 'long', year: 'numeric' };
+  }
+
   currentMonthYearElement.textContent = currentDate.toLocaleDateString(undefined, options);
 }
 
@@ -295,7 +350,7 @@ function renderMonthView() {
     // Add click event to set availability
     dayElement.addEventListener('click', () => {
       availabilityDateInput.value = dateString;
-      availabilityModal.style.display = 'block';
+      availabilityModal.style.display = 'flex';
     });
 
     // Add day element to grid
@@ -379,6 +434,7 @@ function showAppointmentDetails(appointment) {
   // Format date and time
   let formattedDate = 'Unknown Date';
   let formattedTime = 'Unknown Time';
+  let formattedDuration = '30 mins'; // Default duration
 
   if (appointment.date) {
     formattedDate = new Date(appointment.date).toLocaleDateString();
@@ -391,19 +447,24 @@ function showAppointmentDetails(appointment) {
     }
   }
 
+  if (appointment.duration) {
+    formattedDuration = `${appointment.duration} mins`;
+  }
+
   // Build details HTML
   const html = `
     <div class="appointment-detail">
       <p><strong>Patient:</strong> ${appointment.patientName || 'Unknown'}</p>
       <p><strong>Date:</strong> ${formattedDate}</p>
       <p><strong>Time:</strong> ${formattedTime}</p>
+      <p><strong>Duration:</strong> ${formattedDuration}</p>
       <p><strong>Status:</strong> ${appointment.status || 'Scheduled'}</p>
       ${appointment.notes ? `<p><strong>Notes:</strong> ${appointment.notes}</p>` : ''}
     </div>
   `;
 
   appointmentDetails.innerHTML = html;
-  appointmentModal.style.display = 'block';
+  appointmentModal.style.display = 'flex';
 }
 
 // Save doctor availability
@@ -456,14 +517,205 @@ async function saveAvailability() {
 
 // Render week view of the calendar
 function renderWeekView() {
-  // For now, just show the month view
-  // In a real app, this would show a week view with hours
-  renderMonthView();
+  calendarGrid.innerHTML = '';
+
+  // First, determine the start of the week (Sunday) for the current date
+  const weekStart = new Date(currentDate);
+  weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+
+  // Create header row with time column and days of the week
+  const headerRow = document.createElement('div');
+  headerRow.className = 'calendar-header';
+
+  // Add empty cell for time column
+  const timeHeaderCell = document.createElement('div');
+  headerRow.appendChild(timeHeaderCell);
+
+  // Add day headers
+  for (let i = 0; i < 7; i++) {
+    const dayDate = new Date(weekStart);
+    dayDate.setDate(weekStart.getDate() + i);
+
+    const headerCell = document.createElement('div');
+    headerCell.className = 'week-header-day';
+
+    const dayName = dayDate.toLocaleDateString(undefined, { weekday: 'short' });
+    const dayNum = dayDate.getDate();
+    headerCell.innerHTML = `${dayName}<br>${dayNum}`;
+
+    // Highlight today
+    if (
+      dayDate.getDate() === new Date().getDate() &&
+      dayDate.getMonth() === new Date().getMonth() &&
+      dayDate.getFullYear() === new Date().getFullYear()
+    ) {
+      headerCell.classList.add('today');
+    }
+
+    headerRow.appendChild(headerCell);
+  }
+
+  calendarGrid.appendChild(headerRow);
+
+  // Create time slots (from 8 AM to 5 PM)
+  for (let hour = 8; hour < 18; hour++) {
+    // Create row for this hour
+    const timeRow = document.createElement('div');
+    timeRow.className = 'week-row';
+
+    // Add time label
+    const timeLabel = document.createElement('div');
+    timeLabel.className = 'time-label';
+    timeLabel.textContent = hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
+    timeRow.appendChild(timeLabel);
+
+    // Add day cells
+    for (let day = 0; day < 7; day++) {
+      const dayDate = new Date(weekStart);
+      dayDate.setDate(weekStart.getDate() + day);
+
+      const cellDate = formatDate(dayDate);
+      const cellTime = `${String(hour).padStart(2, '0')}:00`;
+
+      const dayCell = document.createElement('div');
+      dayCell.className = 'week-day-cell';
+
+      // Find appointments for this time slot
+      const appointments = doctorAppointments.filter(apt => {
+        if (!apt.appointmentTime) return false;
+
+        const aptDate = apt.date || apt.appointmentTime.split('T')[0];
+        const aptTime = apt.appointmentTime.split('T')[1]?.substring(0, 5);
+
+        const aptHour = parseInt(aptTime?.split(':')[0], 10);
+        return aptDate === cellDate && aptHour === hour;
+      });
+
+      // Add appointments to cell
+      appointments.forEach(apt => {
+        const appointmentEl = document.createElement('div');
+        appointmentEl.className = 'appointment';
+
+        let time = 'TBD';
+        if (apt.appointmentTime) {
+          const timePart = apt.appointmentTime.split('T')[1];
+          if (timePart) {
+            time = timePart.substring(0, 5);
+          }
+        }
+
+        appointmentEl.textContent = `${time} - ${apt.patientName || 'Patient'}`;
+
+        appointmentEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showAppointmentDetails(apt);
+        });
+
+        dayCell.appendChild(appointmentEl);
+      });
+
+      // Check for availability
+      const available = doctorAvailability.some(slot => {
+        return slot.date === cellDate && slot.time === cellTime;
+      });
+
+      if (available && appointments.length === 0) {
+        const availabilityEl = document.createElement('div');
+        availabilityEl.className = 'available-slot';
+        availabilityEl.textContent = 'Available';
+        dayCell.appendChild(availabilityEl);
+      }
+
+      timeRow.appendChild(dayCell);
+    }
+
+    calendarGrid.appendChild(timeRow);
+  }
 }
 
 // Render day view of the calendar
 function renderDayView() {
-  // For now, just show the month view
-  // In a real app, this would show a single day with hours
-  renderMonthView();
+  calendarGrid.innerHTML = '';
+
+  // Format the date string for the selected day
+  const dateString = formatDate(currentDate);
+
+  // Create header row
+  const headerRow = document.createElement('div');
+  headerRow.className = 'calendar-header';
+
+  // Add time column header
+  const timeHeader = document.createElement('div');
+  headerRow.appendChild(timeHeader);
+
+  // Add day header
+  const dayHeader = document.createElement('div');
+  dayHeader.textContent = currentDate.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  headerRow.appendChild(dayHeader);
+
+  calendarGrid.appendChild(headerRow);
+
+  // Create time slots (from 8 AM to 5 PM)
+  for (let hour = 8; hour < 18; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      // Create row for this time slot
+      const timeRow = document.createElement('div');
+
+      // Format time
+      const formattedHour = hour > 12 ? hour - 12 : hour;
+      const amPm = hour >= 12 ? 'PM' : 'AM';
+      const timeString = `${formattedHour}:${minute === 0 ? '00' : minute} ${amPm}`;
+
+      // Add time label
+      const timeLabel = document.createElement('div');
+      timeLabel.className = 'time-label';
+      timeLabel.textContent = timeString;
+      timeRow.appendChild(timeLabel);
+
+      // Add appointment cell
+      const appointmentCell = document.createElement('div');
+      appointmentCell.className = 'calendar-cell';
+
+      // Find appointments for this time
+      const cellTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
+      const appointments = doctorAppointments.filter(apt => {
+        if (!apt.appointmentTime) return false;
+
+        const aptDate = apt.date || apt.appointmentTime.split('T')[0];
+        const aptTime = apt.appointmentTime.split('T')[1]?.substring(0, 5);
+
+        return aptDate === dateString && aptTime === cellTime;
+      });
+
+      // Add appointments to cell
+      appointments.forEach(apt => {
+        const appointmentEl = document.createElement('div');
+        appointmentEl.className = 'day-appointment';
+
+        appointmentEl.textContent = `${apt.patientName || 'Patient'} (${apt.duration || '30'} mins)`;
+
+        appointmentEl.addEventListener('click', () => {
+          showAppointmentDetails(apt);
+        });
+
+        appointmentCell.appendChild(appointmentEl);
+      });
+
+      // Check for availability
+      const available = doctorAvailability.some(slot => {
+        return slot.date === dateString && slot.time === cellTime;
+      });
+
+      if (available && appointments.length === 0) {
+        const availabilityEl = document.createElement('div');
+        availabilityEl.className = 'available-slot';
+        availabilityEl.textContent = 'Available';
+        appointmentCell.appendChild(availabilityEl);
+      }
+
+      timeRow.appendChild(appointmentCell);
+      calendarGrid.appendChild(timeRow);
+    }
+  }
 }

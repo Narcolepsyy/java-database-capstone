@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
+
 @Document(collection = "prescriptions")
 public class Prescription {
 
@@ -59,7 +61,12 @@ public class Prescription {
 //      - The @Size(max = 200) annotation ensures that the doctor's notes do not exceed 200 characters, providing a reasonable limit for additional notes.
 @Size(max = 200)
     private String doctorNotes;
-// 7. Constructors:
+
+  // New fields
+  private LocalDate createdDate;
+  private LocalDate endDate;
+
+  // 7. Constructors:
 //    - The class includes a no-argument constructor (default constructor) and a parameterized constructor that initializes the fields: patientName, medication, dosage, doctorNotes, and appointmentId.
 public Prescription() {
 
@@ -110,4 +117,18 @@ public Long getAppointmentId() {
 public void setAppointmentId(Long appointmentId) {
     this.appointmentId = appointmentId;
 }
+
+  // New getters/setters
+  public LocalDate getCreatedDate() {
+    return createdDate;
+  }
+  public void setCreatedDate(LocalDate createdDate) {
+    this.createdDate = createdDate;
+  }
+  public LocalDate getEndDate() {
+    return endDate;
+  }
+  public void setEndDate(LocalDate endDate) {
+    this.endDate = endDate;
+  }
 }

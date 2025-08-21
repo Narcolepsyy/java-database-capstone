@@ -161,25 +161,31 @@
   
 
   .modal {
-    display: none;
+    display: none; /* hidden by default; JS sets to flex when opened */
     position: fixed;
-    z-index: 999;
-    padding-top: 10px;
-    left: 0;
+    z-index: 9999;
     top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.6);
+    /* Center content when visible */
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
   }
   
   .modal-content {
     background-color: white;
-    margin: auto;
-    padding: 10px;
+    margin: 0; /* centered by flex container */
+    padding: 16px;
     border-radius: 10px;
     overflow-y: auto;
-    width: 400px;
+    width: 100%;
+    max-width: 420px; /* keep reasonable width */
+    max-height: 90vh;
     position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
   }
   
   .modal-content h2{
@@ -187,17 +193,20 @@
   }
 
   .close {
-    color: #aaa;
+    color: #444;
     position: absolute;
-    right: 20px;
-    top: 15px;
+    right: 16px;
+    top: 12px;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
+    line-height: 1;
+    background: transparent;
+    border: none;
   }
   
   .close:hover {
-    color: black;
+    color: #000;
   }
 
 /* Action buttons container for appointment actions */

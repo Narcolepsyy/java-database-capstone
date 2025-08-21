@@ -20,30 +20,49 @@
   
   .ripple-overlay.active {
     transform: translate(-50%, -50%) scale(150);
-    opacity: 1;
+    opacity: 0.7; /* More opacity to better cover background */
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    display: none;
+  }
+
+  .modal-backdrop.active {
+    display: block;
   }
   
   .modalApp {
     position: fixed;
-  bottom: -100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50%;
-  background: #fff;
-  padding: 20px;
-  z-index: 10000;
-  transition: bottom 1.5s ease-in;
-  box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
-  border-radius: 10px 10px 0 0;
-  text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    background: #fff;
+    padding: 20px;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    text-align: center;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
   
   .modalApp.active {
-    bottom: 0;
+    opacity: 1;
+    visibility: visible;
   }
   
   .modalApp h2 {
-    margin-top: 20px;
+    margin: 0;
+    color: #244557;
   }
   
   .modalApp input {
@@ -62,19 +81,65 @@
     margin-bottom: 40px;
   }
   
-  .confirm-booking {
-    padding: 10px 20px;
-    background: #1c3745;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    
-  
-    
+  /* Modal header styling */
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
   }
+
+  /* Close button styling */
+  .close-modal {
+    font-size: 28px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .close-modal:hover {
+    color: #d9534f;
+  }
+
+  /* Modal buttons container */
+  .modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .modal-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .cancel-booking {
+    background-color: #f2f2f2;
+    color: #333;
+  }
+
+  .cancel-booking:hover {
+    background-color: #e0e0e0;
+  }
+
+  .confirm-booking {
+    background-color: #244557;
+    color: white;
+  }
+
   .confirm-booking:hover {
-    filter: brightness(1.2);
-    background-color: #1c3745;
+    background-color: #1a3544;
   }
 
   /* Chatbot Receptionist Styles */
@@ -158,6 +223,7 @@
   hyphens: auto;  /* Adds hyphens where needed for better word breaking */
   text-align: left;  /* Ensure text alignment is consistent */
   min-width: 80px;  /* Ensures a minimum width for messages */
+  overflow-x: auto;         /* allow horizontal scroll for very long unbroken text */
 }
 
 .bot-message .message-content {
@@ -532,8 +598,10 @@
   position: fixed;
   bottom: 100px;
   right: 30px;
-  width: 380px;
-  height: 500px;
+  width: 520px;
+  height: 650px;
+  max-width: 92vw;
+  max-height: 88vh;
   background-color: white;
   border-radius: 16px;
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
@@ -587,8 +655,14 @@
 }
 
 .status {
-  font-size: 12px;
-  opacity: 0.8;
+  font-size: 14px;
+  opacity: 1;
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  display: inline-block;
 }
 
 .status::before {
@@ -596,6 +670,20 @@
   color: #2ecc71;
   margin-right: 4px;
   font-size: 16px;
+}
+
+.chatbot-header .status {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.15);
+  text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.chatbot-header .status::before {
+  color: #ffffff;
 }
 
 .chatbot-controls {
@@ -734,7 +822,7 @@
 .bot-message, .user-message {
   margin-bottom: 16px;
   animation: fadeIn 0.3s ease-in;
-  max-width: 85%;
+  max-width: 95%;
   clear: both;
 }
 
@@ -753,11 +841,13 @@
   line-height: 1.7;  /* Increased line height for better spacing */
   word-wrap: break-word;
   word-spacing: 1px;  /* Minimum spacing between words */
-  white-space: pre-wrap;  /* Preserves spaces and line breaks */
-  overflow-wrap: break-word;  /* Ensures words break properly */
-  hyphens: auto;  /* Adds hyphens where needed for better word breaking */
+  white-space: pre-wrap;    /* keep user-entered line breaks */
+  word-break: normal;       /* do not break words arbitrarily */
+  overflow-wrap: normal;    /* avoid forced word breaks */
+  hyphens: manual;          /* do not auto-hyphenate */
   text-align: left;  /* Ensure text alignment is consistent */
   min-width: 80px;  /* Ensures a minimum width for messages */
+  overflow-x: auto;         /* allow horizontal scroll for very long unbroken text */
 }
 
 .bot-message .message-content {

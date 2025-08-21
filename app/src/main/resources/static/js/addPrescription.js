@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const medicinesInput = document.getElementById("medicines");
   const dosageInput = document.getElementById("dosage");
   const notesInput = document.getElementById("notes");
+  const createdDateInput = document.getElementById("createdDate");
+  const endDateInput = document.getElementById("endDate");
   const heading = document.getElementById("heading")
 
 
@@ -26,6 +28,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Default createdDate to today when adding
+  if (createdDateInput && !mode) {
+    createdDateInput.value = new Date().toISOString().split('T')[0];
+  }
 
   // Pre-fill patient name
   if (patientNameInput && patientName) {
@@ -41,10 +47,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Now, check if the prescription exists in the response and access it from the array
       if (response.prescription && response.prescription.length > 0) {
         const existingPrescription = response.prescription[0]; // Access first prescription object
-        patientNameInput.value = existingPrescription.patientName || YOU;
+        patientNameInput.value = existingPrescription.patientName || patientName || "";
         medicinesInput.value = existingPrescription.medication || "";
         dosageInput.value = existingPrescription.dosage || "";
         notesInput.value = existingPrescription.doctorNotes || "";
+        if (existingPrescription.createdDate) {
+          createdDateInput.value = existingPrescription.createdDate;
+        }
+        if (existingPrescription.endDate) {
+          endDateInput.value = existingPrescription.endDate;
+        }
       }
       
     } catch (error) {
@@ -57,6 +69,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     medicinesInput.disabled = true;
     dosageInput.disabled = true;
     notesInput.disabled = true;
+    if (createdDateInput) createdDateInput.disabled = true;
+    if (endDateInput) endDateInput.disabled = true;
     savePrescriptionBtn.style.display = "none";  // Hide the save button
   }
   // Save prescription on button click
@@ -68,7 +82,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       medication: medicinesInput.value,
       dosage: dosageInput.value,
       doctorNotes: notesInput.value,
-      appointmentId
+      appointmentId,
+      createdDate: createdDateInput.value || null,
+      endDate: endDateInput.value || null
     };
 
     const { success, message } = await savePrescription(prescription, token);

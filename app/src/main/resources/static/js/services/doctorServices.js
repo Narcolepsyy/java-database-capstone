@@ -1,6 +1,7 @@
 // doctorServices.js
 import { API_BASE_URL } from "../config/config.js";
 const DOCTOR_API = API_BASE_URL + '/doctor'
+const APPOINTMENT_API = API_BASE_URL + '/appointments'
 export async function getDoctors() {
     try {
       const response = await fetch(DOCTOR_API);
@@ -69,4 +70,28 @@ export async function getDoctors() {
     }
   }
 
-  
+  // New: fetch doctor appointments for calendar
+export async function getDoctorAppointments({ condition = null, patientName = null, token }) {
+  try {
+    const c = condition ?? null;
+    const p = patientName ?? null;
+    const condSeg = c === null ? 'null' : c;
+    const nameSeg = p === null ? 'null' : encodeURIComponent(p);
+    const url = `${APPOINTMENT_API}/filter/${condSeg}/${nameSeg}/${token}`;
+    const response = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('getDoctorAppointments failed:', data);
+      return { appointments: [] };
+    }
+    return { appointments: data.appointments || [] };
+  } catch (e) {
+    console.error('Error fetching doctor appointments:', e);
+    return { appointments: [] };
+  }
+}
+
+// Optional: availability update stub (backend not implemented yet)
+export async function updateDoctorAvailability() {
+  return { success: true };
+}

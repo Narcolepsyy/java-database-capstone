@@ -6,7 +6,65 @@ import { patientSignup , patientLogin} from './services/patientServices.js';
 import { symptomAnalyzer } from './services/aiSymptomAnalyzer.js';
 import { chatbotReceptionist } from './services/chatbotReceptionist.js';
 
+// --- Chat persistence and UX helpers ---
+const CHAT_HISTORY_KEY = 'vr_chat_history_v1';
+const CHAT_UNREAD_KEY = 'vr_chat_unread_v1';
+const CHAT_OPEN_KEY = 'vr_chat_open_v1';
 
+function loadChatHistory() {
+  try { return JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY)) || []; } catch { return []; }
+}
+function saveChatHistory(history) {
+  localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(history));
+}
+function getUnreadCount() {
+  return parseInt(localStorage.getItem(CHAT_UNREAD_KEY) || '0', 10);
+}
+function setUnreadCount(n) {
+  localStorage.setItem(CHAT_UNREAD_KEY, String(n));
+  const badge = document.getElementById('chatNotification');
+  if (badge) {
+    if (n > 0) { badge.textContent = String(n); badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+  }
+}
+function isChatOpen() {
+  return localStorage.getItem(CHAT_OPEN_KEY) === '1';
+}
+function setChatOpen(open) {
+  localStorage.setItem(CHAT_OPEN_KEY, open ? '1' : '0');
+}
+
+function addMessageElement(message, sender, timeString) {
+  const chatMessages = document.getElementById("chatMessages");
+  const messageDiv = document.createElement("div");
+  messageDiv.className = `${sender}-message`;
+  messageDiv.innerHTML = `
+    <div class="message-content">${formatMessage(message)}</div>
+    <div class="message-time">${timeString}</div>
+  `;
+  chatMessages.appendChild(messageDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function renderChatHistory() {
+  const chatMessages = document.getElementById("chatMessages");
+  const history = loadChatHistory();
+  if (!chatMessages) return;
+  // Keep initial greeting if no history
+  chatMessages.innerHTML = history.length ? '' : chatMessages.innerHTML;
+  history.forEach(msg => addMessageElement(msg.text, msg.sender, msg.time));
+}
+
+function pushToHistory(sender, text, timeString) {
+  const history = loadChatHistory();
+  history.push({ sender, text, time: timeString });
+  // limit history size
+  if (history.length > 200) history.splice(0, history.length - 200);
+  saveChatHistory(history);
+}
+
+// --- Existing code ---
 
 document.addEventListener("DOMContentLoaded", () => {
   loadDoctorCards();
@@ -241,18 +299,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearChatBtn = document.getElementById("clearChat");
   const chatInput = document.getElementById("chatInput");
 
+  // Restore history and UI state
+  renderChatHistory();
+  setUnreadCount(getUnreadCount());
+  if (isChatOpen()) toggleChatPopup(true);
 
-  // Initialize - hide notification after a delay
+  // Initialize - hide notification after a delay if zero
   setTimeout(() => {
-    if (chatNotification) {
+    if (chatNotification && getUnreadCount() === 0) {
       chatNotification.style.display = "none";
     }
-  }, 10000);
+  }, 3000);
 
   if (chatButton) {
     chatButton.addEventListener("click", () => {
       toggleChatPopup(true);
-      if (chatNotification) chatNotification.style.display = "none";
+      setUnreadCount(0);
+    });
+    // Keyboard access: Enter/Space
+    chatButton.addEventListener("keydown", (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleChatPopup(true);
+        setUnreadCount(0);
+      }
     });
   }
 
@@ -273,7 +343,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (clearChatBtn) {
-    clearChatBtn.addEventListener("click", clearChatHistory);
+    clearChatBtn.addEventListener("click", () => {
+      clearChatHistory();
+      saveChatHistory([]);
+      setUnreadCount(0);
+    });
   }
 
   if (chatInput) {
@@ -283,7 +357,21 @@ document.addEventListener("DOMContentLoaded", () => {
         sendChatMessage();
       }
     });
+    // Ctrl+Enter to send as well
+    chatInput.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    });
   }
+
+  // Global Escape to close when open
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && chatPopup && chatPopup.classList.contains('active')) {
+      toggleChatPopup(false);
+    }
+  });
 
   // Add global function for specialty suggestions to work
   window.filterBySpecialty = filterBySpecialty;
@@ -295,6 +383,7 @@ function toggleChatPopup(show) {
 
   if (show) {
     chatPopup.classList.add("active");
+    setChatOpen(true);
     // Focus on chat input
     setTimeout(() => {
       const chatInput = document.getElementById("chatInput");
@@ -302,6 +391,7 @@ function toggleChatPopup(show) {
     }, 300);
   } else {
     chatPopup.classList.remove("active");
+    setChatOpen(false);
   }
 }
 
@@ -332,13 +422,14 @@ function minimizeChatbot() {
 async function sendChatMessage() {
   const chatInput = document.getElementById("chatInput");
   const message = chatInput.value.trim();
-
   if (!message) return;
-
   const sendBtn = document.getElementById("sendMessage");
 
   // Add user message to chat
-  addMessageToChat(message, 'user');
+  const now = new Date();
+  const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  addMessageElement(message, 'user', timeString);
+  pushToHistory('user', message, timeString);
   chatInput.value = '';
 
   // Disable send button and show typing indicator
@@ -351,7 +442,16 @@ async function sendChatMessage() {
 
     // Remove typing indicator and add bot response
     removeTypingIndicator();
-    addMessageToChat(response.message, 'bot');
+    const botText = response.message;
+    const botTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    addMessageElement(botText, 'bot', botTime);
+    pushToHistory('bot', botText, botTime);
+
+    // If chat is minimized/hidden, bump unread
+    const popup = document.getElementById('chatbotPopup');
+    if (!popup.classList.contains('active')) {
+      setUnreadCount(getUnreadCount() + 1);
+    }
 
     // If there are recommended specialties, add suggestion buttons
     if (response.recommendedSpecialties.length > 0) {
@@ -360,7 +460,10 @@ async function sendChatMessage() {
 
   } catch (error) {
     removeTypingIndicator();
-    addMessageToChat("Sorry, I'm having trouble processing your request right now. Please try again.", 'bot');
+    const errText = "Sorry, I'm having trouble processing your request right now. Please try again.";
+    const errTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    addMessageElement(errText, 'bot', errTime);
+    pushToHistory('bot', errText, errTime);
     console.error('Chatbot error:', error);
   } finally {
     sendBtn.disabled = false;
@@ -368,24 +471,14 @@ async function sendChatMessage() {
 }
 
 function addMessageToChat(message, sender) {
-  const chatMessages = document.getElementById("chatMessages");
-  const messageDiv = document.createElement("div");
-  messageDiv.className = `${sender}-message`;
-
+  // Deprecated in favor of addMessageElement+pushToHistory, keep for backward compatibility if referenced.
   const now = new Date();
   const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-  messageDiv.innerHTML = `
-    <div class="message-content">${formatMessage(message)}</div>
-    <div class="message-time">${timeString}</div>
-  `;
-
-  chatMessages.appendChild(messageDiv);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  addMessageElement(message, sender, timeString);
+  pushToHistory(sender, message, timeString);
 }
 
 function formatMessage(message) {
-  // Convert **text** to <strong>text</strong>
   return message
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\n/g, '<br>');
@@ -396,7 +489,6 @@ function showTypingIndicator() {
   const typingDiv = document.createElement("div");
   typingDiv.className = "bot-message typing-indicator-container";
   typingDiv.id = "typingIndicator";
-
   typingDiv.innerHTML = `
     <div class="typing-indicator">
       <div class="typing-dot"></div>
@@ -404,30 +496,25 @@ function showTypingIndicator() {
       <div class="typing-dot"></div>
     </div>
   `;
-
   chatMessages.appendChild(typingDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 function removeTypingIndicator() {
   const typingIndicator = document.getElementById("typingIndicator");
-  if (typingIndicator) {
-    typingIndicator.remove();
-  }
+  if (typingIndicator) typingIndicator.remove();
 }
 
 function addSpecialtySuggestions(specialties) {
   const chatMessages = document.getElementById("chatMessages");
   const suggestionsDiv = document.createElement("div");
   suggestionsDiv.className = "bot-message";
-
   const suggestionsHtml = specialties.map(specialty => `
     <div class="specialty-suggestion" onclick="filterBySpecialty('${specialty}')">
       <strong>View ${specialty} Doctors</strong>
       <br><small>Click to see available ${specialty.toLowerCase()} doctors</small>
     </div>
   `).join('');
-
   suggestionsDiv.innerHTML = `
     <div class="message-content">
       Here are some quick actions:
@@ -435,15 +522,14 @@ function addSpecialtySuggestions(specialties) {
     </div>
     <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
   `;
-
   chatMessages.appendChild(suggestionsDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
+  // Save suggestion block as a bot message snapshot
+  pushToHistory('bot', suggestionsDiv.querySelector('.message-content').innerText, new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 }
 
 function clearChatHistory() {
   const chatMessages = document.getElementById("chatMessages");
-
-  // Clear all messages except the initial greeting
   chatMessages.innerHTML = `
     <div class="bot-message">
       <div class="message-content">
@@ -452,8 +538,6 @@ function clearChatHistory() {
       <div class="message-time">Just now</div>
     </div>
   `;
-
-  // Clear chatbot conversation history
   chatbotReceptionist.clearConversation();
 }
 

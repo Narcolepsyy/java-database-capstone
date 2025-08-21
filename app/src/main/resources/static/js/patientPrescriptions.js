@@ -1,4 +1,4 @@
-import { getPatientPrescriptions } from "./services/prescriptionServices.js";
+import { getPatientPrescriptions, deletePrescription } from "./services/prescriptionServices.js";
 import { getPatientData } from "./services/patientServices.js";
 
 const prescriptionsContainer = document.getElementById("prescriptionsContainer");
@@ -54,6 +54,9 @@ function createPrescriptionCard(prescription) {
   const card = document.createElement("div");
   card.className = "prescription-card";
 
+  const created = prescription.createdDate ? new Date(prescription.createdDate).toLocaleDateString() : "—";
+  const ended = prescription.endDate ? new Date(prescription.endDate).toLocaleDateString() : "—";
+
   card.innerHTML = `
     <div class="prescription-header">
       <h3 class="medication-name">${prescription.medication}</h3>
@@ -72,14 +75,41 @@ function createPrescriptionCard(prescription) {
         <span class="label">Appointment ID:</span>
         <span class="value">${prescription.appointmentId}</span>
       </div>
+      <div class="detail-row">
+        <span class="label">Created Date:</span>
+        <span class="value">${created}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">End Date:</span>
+        <span class="value">${ended}</span>
+      </div>
       ${prescription.doctorNotes ? `
         <div class="detail-row notes">
           <span class="label">Doctor's Notes:</span>
           <span class="value">${prescription.doctorNotes}</span>
         </div>
       ` : ''}
+      <div class="detail-row" style="justify-content:flex-end;border-bottom:none;">
+        <button class="cancel-btn" data-prescription-id="${prescription.id}">Remove</button>
+      </div>
     </div>
   `;
+
+  // Wire delete
+  const deleteBtn = card.querySelector('[data-prescription-id]');
+  deleteBtn.addEventListener('click', async () => {
+    const confirmed = confirm('Remove this prescription?');
+    if (!confirmed) return;
+    const { success, message } = await deletePrescription(prescription.id, token);
+    if (success) {
+      allPrescriptions = allPrescriptions.filter(p => p.id !== prescription.id);
+      filteredPrescriptions = filteredPrescriptions.filter(p => p.id !== prescription.id);
+      renderPrescriptions(filteredPrescriptions);
+      alert('✅ Prescription removed');
+    } else {
+      alert('❌ ' + (message || 'Failed to remove prescription'));
+    }
+  });
 
   return card;
 }
